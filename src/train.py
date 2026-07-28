@@ -11,7 +11,6 @@ def main():
         workers=8, 
         device=0,  ## Definindo pra usar GPU
         patience=20,
-        cls_pw=0.5,
         project="C:/Projetos/DetectEPI/runs",
         name="detectepi_v2_classweights"
     )
