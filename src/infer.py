@@ -1,5 +1,6 @@
 from ultralytics import YOLO
 import os
+import cv2
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -54,11 +55,56 @@ class EPIDetector:
         
         return result
 
-    def predict_video(self, video_path, conf=0.25):
-        
-        return None
+    def predict_video(self, video_path, conf=0.25, save_dir=None):
+        if save_dir is None:
+            save_dir = os.path.join(RUNS_DIR, "inference")
+            
+        results = self.model.predict(
+            source=video_path,
+            conf=conf,
+            save=True,
+            project=save_dir,
+            name="predictions"
+        )
+        return results
+    
+    def predict_video_filtered(self, video_path, class_thresholds, default_conf=0.15, save_dir=None):
+        if save_dir is None:
+            save_dir = os.path.join(RUNS_DIR, "inference")
+        os.makedirs(save_dir, exist_ok=True)
 
+        cap = cv2.VideoCapture(video_path)
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        cap.release()
 
+        output_path = os.path.join(save_dir, "filtered_" + os.path.basename(video_path))
+        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+        writer = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+
+        results = self.model.predict(source=video_path, conf=default_conf, save=False, stream=True)
+
+        for result in results:
+            boxes = result.boxes
+            keep_indices = []
+
+            for j in range(len(boxes)):
+                class_id = int(boxes.cls[j])
+                class_name = self.model.names[class_id]
+                confidence = float(boxes.conf[j])
+                threshold = class_thresholds.get(class_name, default_conf)
+                if confidence >= threshold:
+                    keep_indices.append(j)
+
+            result.boxes = boxes[keep_indices]
+
+            annotated_frame = result.plot()
+            writer.write(annotated_frame)
+
+        writer.release()
+        return output_path
+    
 def main():
     model_path = os.path.join(BASE_DIR, "..", "runs", "detectepi_v1", "weights", "best.pt")
     detector = EPIDetector(model_path)
