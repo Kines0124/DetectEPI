@@ -16,8 +16,7 @@ def train_model(model_size ="n", epochs = 100):
     )
     
 def main ():
-    train_model(model_size="s", epochs=100)
-    ## train_model(model_size="n", epochs=100)
+    train_model(model_size="n", epochs=100)
 
 if __name__ == "__main__":
     main()
