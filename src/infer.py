@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 import os
 import cv2
-
+import argparse
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 RUNS_DIR = os.path.join(BASE_DIR, "..", "runs")
@@ -64,7 +64,6 @@ class EPIDetector:
             conf=conf,
             save=True,
             project=save_dir,
-            name="predictions"
         )
         return results
     
@@ -106,20 +105,34 @@ class EPIDetector:
         return output_path
     
 def main():
-    model_path = os.path.join(BASE_DIR, "..", "runs", "detectepi_v1", "weights", "best.pt")
-    detector = EPIDetector(model_path)
     
-    image_path = os.path.join(BASE_DIR, "..", "data", "test", "images", "00411_jpg.rf.5834946a4dd017b28423c6150d115ecc.jpg")
+    ## Path
     
+    default_model = os.path.join(BASE_DIR, "..", "runs", "detectepi_v1", "weights", "best.pt")
+    
+    parser = argparse.ArgumentParser(description="...")
+    parser.add_argument("--source", required=True, help="...")
+    parser.add_argument("--mode", choices=["image","image_filtered", "video", "video_filtered"], default="image_filtered")    
+    parser.add_argument("--model", default=default_model)
+    args = parser.parse_args()
+    
+    detector = EPIDetector(args.model)
+
     class_thresholds = {
-        "NO-Safety Helmet": 0.4,
+        "NO-Safety Helmet": 0.35,
         "NO-Safety Vest": 0.15,
-        "Safety Helmet": 0.4,
+        "Safety Helmet": 0.35,
         "Safety Vest": 0.3
     }
     
-    result = detector.predict_image_filtered(image_path, class_thresholds)
-
+    if args.mode == "image":
+        detector.predict_image(args.source)
+    elif args.mode == "image_filtered":
+        detector.predict_image_filtered(args.source, class_thresholds)
+    elif args.mode == "video":
+        detector.predict_video(args.source)
+    elif args.mode == "video_filtered":
+        detector.predict_video_filtered(args.source, class_thresholds)
 
 if __name__ == "__main__":
     main()
