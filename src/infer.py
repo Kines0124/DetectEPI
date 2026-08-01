@@ -110,10 +110,13 @@ def main():
     
     default_model = os.path.join(BASE_DIR, "..", "model", "best.pt")
     
+    default_output = os.path.join(BASE_DIR, "..", "runs", "inference")
+    
     parser = argparse.ArgumentParser(description="...")
     parser.add_argument("--source", required=True, help="...")
     parser.add_argument("--mode", choices=["image","image_filtered", "video", "video_filtered"], default="image_filtered")    
     parser.add_argument("--model", default=default_model)
+    parser.add_argument("--output", default=default_output)
     args = parser.parse_args()
     
     detector = EPIDetector(args.model)
@@ -126,13 +129,13 @@ def main():
     }
     
     if args.mode == "image":
-        detector.predict_image(args.source)
+        detector.predict_image(args.source, save_dir=args.output)
     elif args.mode == "image_filtered":
-        detector.predict_image_filtered(args.source, class_thresholds)
+        detector.predict_image_filtered(args.source, class_thresholds, save_dir=args.output)
     elif args.mode == "video":
-        detector.predict_video(args.source)
+        detector.predict_video(args.source, save_dir=args.output)
     elif args.mode == "video_filtered":
-        detector.predict_video_filtered(args.source, class_thresholds)
+        detector.predict_video_filtered(args.source, class_thresholds, save_dir=args.output)
 
 if __name__ == "__main__":
     main()
