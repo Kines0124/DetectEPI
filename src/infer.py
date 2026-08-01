@@ -108,7 +108,7 @@ def main():
     
     ## Path
     
-    default_model = os.path.join(BASE_DIR, "..", "runs", "detectepi_v1", "weights", "best.pt")
+    default_model = os.path.join(BASE_DIR, "..", "model", "best.pt")
     
     parser = argparse.ArgumentParser(description="...")
     parser.add_argument("--source", required=True, help="...")
