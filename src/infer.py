@@ -37,15 +37,7 @@ class EPIDetector:
         result = results[0]
         boxes = result.boxes
 
-        keep_indices = []
-        for i in range(len(boxes)):
-            class_id = int(boxes.cls[i])
-            class_name = self.model.names[class_id]
-            confidence = float(boxes.conf[i])
-
-            threshold = class_thresholds.get(class_name, default_conf)
-            if confidence >= threshold:
-                keep_indices.append(i)
+        keep_indices = filter_boxes_by_threshold(boxes, class_thresholds, self.model.names, default_conf)
 
         result.boxes = boxes[keep_indices]
         
@@ -86,15 +78,8 @@ class EPIDetector:
 
         for result in results:
             boxes = result.boxes
-            keep_indices = []
-
-            for j in range(len(boxes)):
-                class_id = int(boxes.cls[j])
-                class_name = self.model.names[class_id]
-                confidence = float(boxes.conf[j])
-                threshold = class_thresholds.get(class_name, default_conf)
-                if confidence >= threshold:
-                    keep_indices.append(j)
+            
+            keep_indices = filter_boxes_by_threshold(boxes, class_thresholds, self.model.names, default_conf)
 
             result.boxes = boxes[keep_indices]
 
@@ -103,6 +88,20 @@ class EPIDetector:
 
         writer.release()
         return output_path
+    
+def filter_boxes_by_threshold(boxes, class_thresholds, class_names, default_conf):
+    
+    keep_indices = []
+    for i in range(len(boxes)):
+        class_id = int(boxes.cls[i])
+        class_name = class_names[class_id]  # direto, sem .names
+        confidence = float(boxes.conf[i])
+
+        threshold = class_thresholds.get(class_name, default_conf)
+        if confidence >= threshold:
+            keep_indices.append(i)
+    
+    return keep_indices
     
 def main():
     
