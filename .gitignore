@@ -5,3 +5,4 @@ __pycache__/
 .pytest_cache/
 runs/
 notes.txt
+tests/tmp_output/*
