@@ -7,4 +7,3 @@ runs/
 notes.txt
 tests/tmp_output/*
 *.csv
-*pbix
