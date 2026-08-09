@@ -113,7 +113,7 @@ Same training configuration as the baseline, using `yolov8s.pt` instead of `yolo
 
 Instead of retraining again, the class-imbalance problem was mitigated at inference time using **per-class confidence thresholds**, decided by inspecting the precision-recall curves generated during validation.
 
-![Precision-recall curve](assets/metrics/boxPR_curve.png)
+![Precision-recall curve](assets/metrics/BoxPR_curve.png)
 
 `NO-Safety Vest`'s PR curve shows its "knee" around recall 0.6–0.65; beyond that point, precision drops sharply. A confidence threshold of **0.15** sits at the balance point for this class. Well-performing classes (`NO-Safety Helmet`, `Safety Helmet`) retain high recall (~0.90+) even under a stricter threshold, so they were kept higher to avoid unnecessary false positives.
 
